@@ -1,0 +1,42 @@
+---
+description: Framework architecture rules for the reusable Playwright suite framework
+globs:
+  - "**/*.ts"
+  - "**/*.md"
+alwaysApply: true
+---
+
+# Framework Architecture Rules
+
+This repository is a reusable Playwright TypeScript suite framework. Keep changes generic and suitable for adoption by any project.
+
+## Central Configuration
+
+- `framework.config.ts` is the single source of truth for framework defaults.
+- `.env` is committed with dummy defaults so a fresh clone can run immediately.
+- Real secrets must go in `.env.local`, `.env.*.local`, or CI environment variables.
+- Do not create additional files that own environment defaults.
+- Do not duplicate defaults in `playwright.config.ts`, `setup.ts`, suite registries, or tests.
+- `playwright.config.ts` should only adapt `frameworkConfig` into Playwright's expected config shape.
+
+## Suite Runner Model
+
+- Playwright should discover only `main.spec.ts`.
+- Test files should export runner functions that register Playwright tests.
+- Runner functions must be registered in `testSuiteConfig.ui.ts` or `testSuiteConfig.api.ts`.
+- Preserve support for serial, parallel, and hybrid execution.
+- Use `mode: 'serial'` for stateful workflows.
+- Use `mode: 'parallel'` only when tests are independent.
+- `TEST_SUITE=parallel` should run selected suite keys from `PARALLEL_SUITE_KEYS`.
+
+## Package Manager Compatibility
+
+- Package scripts must work through both `pnpm run` and `bun run`.
+- Do not write scripts that require `pnpm exec` inside `package.json`.
+- Keep install behavior suitable for a fresh clone.
+
+## Project Agnosticism
+
+- Do not add project-specific names, URLs, credentials, selectors, or business workflows to framework core files.
+- Example tests should remain simple placeholders.
+- Project-specific page objects, fixtures, helpers, and data should live in their conventional folders, not in framework orchestration files.

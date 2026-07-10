@@ -1,0 +1,68 @@
+---
+description: Contribution workflow and quality gates for AI-assisted changes
+globs:
+  - "**/*"
+alwaysApply: true
+---
+
+# Contribution Workflow Rules
+
+## Before Editing
+
+- Understand whether the change belongs to framework core, a suite registry, a template, docs, pages, fixtures, helpers, or test data.
+- Prefer small, focused changes.
+- Do not rewrite unrelated files or refactor unrelated examples.
+
+## Documentation
+
+Update documentation when changing:
+
+- install behavior
+- package scripts
+- suite registration
+- execution modes
+- centralized config behavior
+- migration instructions
+- templates
+- AI guidance files
+
+Relevant docs:
+
+- `README.md`
+- `docs/ADOPTION_CHECKLIST.md`
+- `templates/README.md`
+- `AGENTS.md`
+- `.cursorrules`
+- `.github/copilot-instructions.md`
+- `.cursor/rules/*.mdc`
+
+## Quality Gates
+
+Before considering work complete, run:
+
+```bash
+pnpm doctor
+pnpm validate:suites
+pnpm typecheck
+pnpm format:check
+pnpm lint
+```
+
+Bun equivalents are acceptable:
+
+```bash
+bun run doctor
+bun run validate:suites
+bun run typecheck
+bun run format:check
+bun run lint
+```
+
+If a command cannot be run, clearly explain why.
+
+## Git Hygiene
+
+- Do not commit `node_modules`, reports, logs, or real secrets.
+- Keep the committed `.env` dummy-only.
+- Commit `pnpm-lock.yaml` when dependency versions change.
+- Keep changes suitable for public GitHub reuse.

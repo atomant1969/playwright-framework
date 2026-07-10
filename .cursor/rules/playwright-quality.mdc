@@ -1,0 +1,41 @@
+---
+description: Playwright and TypeScript quality rules for tests, helpers, pages, and fixtures
+globs:
+  - "testcases/**/*.ts"
+  - "pages/**/*.ts"
+  - "fixtures/**/*.ts"
+  - "lib/**/*.ts"
+  - "setup.ts"
+alwaysApply: true
+---
+
+# Playwright And TypeScript Quality Rules
+
+## TypeScript
+
+- Keep strict TypeScript compatibility.
+- Avoid `any`; if unavoidable, keep it local and explain why.
+- Prefer explicit domain types for shared data and suite metadata.
+- Do not silence errors with broad casts or blanket `// eslint-disable` comments.
+
+## Playwright Tests
+
+- Prefer semantic locators: `getByRole`, `getByLabel`, `getByText`, and `getByTestId` where appropriate.
+- Prefer web-first assertions such as `await expect(locator).toBeVisible()`.
+- Avoid arbitrary sleeps and hard waits.
+- Avoid custom retry loops around UI interactions; use Playwright waiting and assertions.
+- Keep test titles descriptive and stable.
+- Keep tests business-readable; move repeated mechanics into pages, fixtures, or helpers.
+
+## Setup And Auth
+
+- Keep reusable setup in `setup.ts` or fixtures.
+- Do not hardcode credentials.
+- Keep committed `.env` values dummy-only.
+- Use environment variables or CI secrets for real authentication.
+
+## Templates
+
+- Keep template files under `templates/` with `.template.*` names.
+- Do not make templates executable or compiled by default.
+- Update templates when framework conventions change.

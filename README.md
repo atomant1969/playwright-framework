@@ -273,7 +273,9 @@ export const uiSuites = {
 This repo includes guidance files for AI-assisted coding:
 
 - `AGENTS.md` for general coding agents
-- `.cursorrules` for Cursor
+- `.cursorrules` for Cursor legacy project rules
+- `.cursor/rules/*.mdc` for Cursor project rules
+- `.cursor/system-prompt.md` for Cursor project context
 - `.github/copilot-instructions.md` for GitHub Copilot
 
 These files describe the framework architecture, suite registration pattern, centralized config rule, secret-handling expectations, and required quality gates. Keep them updated when the framework conventions change.
