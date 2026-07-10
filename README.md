@@ -268,6 +268,16 @@ export const uiSuites = {
 4. Add a suite entry with `description`, `kind`, `mode`, and `tests`.
 5. Run `pnpm validate:suites` or `bun run validate:suites`.
 
+## AI Coding Rules
+
+This repo includes guidance files for AI-assisted coding:
+
+- `AGENTS.md` for general coding agents
+- `.cursorrules` for Cursor
+- `.github/copilot-instructions.md` for GitHub Copilot
+
+These files describe the framework architecture, suite registration pattern, centralized config rule, secret-handling expectations, and required quality gates. Keep them updated when the framework conventions change.
+
 ## Templates
 
 Copy-ready placeholders live in `templates/`:

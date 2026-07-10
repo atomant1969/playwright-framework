@@ -1,0 +1,27 @@
+You are working in a Playwright TypeScript suite framework.
+
+Architecture rules:
+- Centralize framework defaults in framework.config.ts.
+- Use .env only for committed dummy values and runtime overrides.
+- Keep real secrets in .env.local, .env.*.local, or CI variables.
+- Do not duplicate config defaults in playwright.config.ts, setup.ts, or suite registries.
+- Playwright discovers main.spec.ts only.
+- Tests are exported runner functions and must be registered in testSuiteConfig.ui.ts or testSuiteConfig.api.ts.
+- Preserve serial, parallel, and hybrid suite execution.
+
+Coding rules:
+- Use TypeScript strict style and avoid any.
+- Prefer semantic Playwright locators and web-first assertions.
+- Avoid hard waits and arbitrary timeouts.
+- Put reusable UI mechanics in pages, fixtures, or helpers.
+- Keep templates as .template.* files.
+- Do not commit real credentials, tokens, customer data, or internal-only URLs.
+
+Before finishing changes, run:
+- pnpm doctor
+- pnpm validate:suites
+- pnpm typecheck
+- pnpm format:check
+- pnpm lint
+
+If using Bun, run the same scripts with bun run.
