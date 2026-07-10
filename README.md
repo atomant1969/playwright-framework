@@ -270,13 +270,18 @@ export const uiSuites = {
 
 ## AI Coding Rules
 
-This repo includes guidance files for AI-assisted coding:
+This repo includes guidance files for AI-assisted coding. The canonical, IDE-agnostic source of truth is:
 
-- `AGENTS.md` for general coding agents
+- `AGENTS.md`
+
+Tool-specific adapters are also included:
+
 - `.cursorrules` for Cursor legacy project rules
 - `.cursor/rules/*.mdc` for Cursor project rules
 - `.cursor/system-prompt.md` for Cursor project context
 - `.github/copilot-instructions.md` for GitHub Copilot
+
+For Antigravity and other IDEs, use `AGENTS.md` as the project instruction source. See `docs/AI_IDE_SETUP.md` for setup guidance.
 
 These files describe the framework architecture, suite registration pattern, centralized config rule, secret-handling expectations, and required quality gates. Keep them updated when the framework conventions change.
 
