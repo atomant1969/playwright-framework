@@ -179,6 +179,8 @@ Framework configuration lives in one file:
 framework.config.ts
 ```
 
+A dummy .env is committed so a fresh clone can run immediately. Keep real secrets in ignored local files such as .env.local or CI environment variables. Do not define framework defaults in multiple places.
+
 `.env` is only for runtime overrides such as `TEST_SUITE`, `BASE_URL`, credentials, and headless mode. Do not define framework defaults in multiple places.
 
 ## Run

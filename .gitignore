@@ -1,7 +1,9 @@
 node_modules/
-.env
-.env.*
-!.env.example
+
+# Keep the committed dummy .env for starter-project usability.
+# Put real local secrets in .env.local or another ignored local override file.
+.env.local
+.env.*.local
 
 /test-results/
 /playwright-report/
