@@ -1,0 +1,9 @@
+{
+  "featureName": "Replace with feature name",
+  "records": [
+    {
+      "name": "Example record",
+      "expectedStatus": "Active"
+    }
+  ]
+}

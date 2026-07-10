@@ -1,0 +1,17 @@
+node_modules/
+.env
+.env.*
+!.env.example
+
+/test-results/
+/playwright-report/
+/allure-results/
+/allure-report/
+/blob-report/
+/logs/
+/dist/
+
+.DS_Store
+.idea/
+.vscode/
+*.log

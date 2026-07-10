@@ -1,0 +1,46 @@
+name: Playwright Framework Checks
+
+on:
+  push:
+    branches: [main, canary]
+  pull_request:
+    branches: [main, canary]
+
+jobs:
+  test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    env:
+      TEST_SUITE: smoke
+      HEADLESS: true
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.4
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Framework doctor
+        run: pnpm doctor
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: Validate suite registry
+        run: pnpm validate:suites
+      - name: Check formatting
+        run: pnpm format:check
+      - name: Lint
+        run: pnpm lint
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps
+      - name: Run smoke suite
+        run: pnpm test
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
