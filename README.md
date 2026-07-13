@@ -179,11 +179,16 @@ Framework configuration lives in one file:
 framework.config.ts
 ```
 
-A dummy .env is committed so a fresh clone can run immediately. Keep real secrets in ignored local files such as .env.local or CI environment variables. Do not define framework defaults in multiple places.
-
-`.env` is only for runtime overrides such as `TEST_SUITE`, `BASE_URL`, credentials, and headless mode. Do not define framework defaults in multiple places.
+A dummy `.env` is committed so a fresh clone can run immediately. Keep real secrets in ignored local files such as `.env.local` or CI environment variables. Do not define framework defaults in multiple places.
 
 ## Run
+
+Show the execution plan:
+
+```bash
+pnpm plan
+bun run plan
+```
 
 Run the default suite from `.env`:
 
@@ -237,7 +242,41 @@ pnpm format
 pnpm lint:fix
 ```
 
-CI runs the framework doctor, typecheck, suite validation, format check, lint, browser install with system dependencies, and the smoke suite.
+CI runs the framework doctor, typecheck, suite validation, format check, lint, prints the execution plan into the GitHub job summary, installs browser system dependencies, and runs the smoke suite.
+
+## Execution Plan
+
+The framework can print the suites and registered runner functions that will execute before Playwright starts.
+
+```bash
+pnpm plan
+bun run plan
+```
+
+The plan includes:
+
+- selected suite key
+- run mode: `serial`, `parallel`, or `hybrid`
+- suite order
+- suite execution mode
+- runner function names
+- runner descriptions
+
+The command writes artifacts to:
+
+```text
+test-results/execution-plan.json
+test-results/execution-plan.md
+```
+
+In GitHub Actions, `pnpm plan` also writes the Markdown plan to the job summary through `GITHUB_STEP_SUMMARY`.
+
+To print the plan and then run tests locally:
+
+```bash
+pnpm test:with-plan
+bun run test:with-plan
+```
 
 ## Suite Model
 

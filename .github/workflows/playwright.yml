@@ -34,10 +34,19 @@ jobs:
         run: pnpm format:check
       - name: Lint
         run: pnpm lint
+      - name: Show execution plan
+        run: pnpm plan
       - name: Install Playwright browsers
         run: pnpm exec playwright install --with-deps
       - name: Run smoke suite
         run: pnpm test
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: execution-plan
+          path: test-results/execution-plan.*
+          if-no-files-found: ignore
+          retention-days: 30
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
