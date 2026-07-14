@@ -97,6 +97,9 @@ jobs:
         run: pnpm exec playwright install --with-deps
       - name: Run suite ${{ matrix.suite }}
         run: pnpm test
+      - name: Generate suite result summary
+        if: ${{ always() }}
+        run: pnpm suite:results
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:

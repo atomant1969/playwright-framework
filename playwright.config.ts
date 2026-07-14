@@ -30,7 +30,12 @@ export default defineConfig({
   workers: resolveWorkerCount(),
   fullyParallel: isHybridParallelRun,
   retries: frameworkConfig.playwright.retries,
-  reporter: [['line'], ['html', { open: 'never' }], ['allure-playwright']],
+  reporter: [
+    ['line'],
+    ['json', { outputFile: 'test-results/playwright-results.json' }],
+    ['html', { open: 'never' }],
+    ['allure-playwright'],
+  ],
   use: {
     baseURL: frameworkConfig.app.baseURL,
     headless: frameworkConfig.playwright.headless,

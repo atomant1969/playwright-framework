@@ -17,6 +17,7 @@
     "typecheck": "tsc --noEmit",
     "validate:suites": "tsx scripts/validate-suites.ts",
     "suite:summary": "tsx scripts/generate-suite-summary.ts",
+    "suite:results": "tsx scripts/generate-suite-result-summary.ts",
     "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix",
     "format": "prettier . --write",

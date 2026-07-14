@@ -285,6 +285,16 @@ run-suite (demo_parallel_beta) [parallel]
 
 Use `pnpm suite:summary` locally to generate the same summary for the selected `TEST_SUITE`.
 
+After the suite runs, the workflow appends a result table to the same job summary:
+
+```text
+PASS | beta parallel test 1 | 721 ms
+FAIL | beta parallel test 2 | 704 ms | Expected ...
+PASS | beta parallel test 3 | 719 ms
+```
+
+Use `pnpm suite:results` locally after `pnpm test` to generate the same PASS/FAIL table from the Playwright JSON report.
+
 ## Suite Model
 
 Suites live in `testSuiteConfig.ui.ts` and `testSuiteConfig.api.ts`.
