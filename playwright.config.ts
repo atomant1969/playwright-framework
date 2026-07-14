@@ -32,7 +32,7 @@ export default defineConfig({
   retries: frameworkConfig.playwright.retries,
   reporter: [
     ['line'],
-    ['json', { outputFile: 'test-results/playwright-results.json' }],
+    ['json', { outputFile: process.env.PLAYWRIGHT_JSON_OUTPUT || 'test-results/playwright-results.json' }],
     ['html', { open: 'never' }],
     ['allure-playwright'],
   ],

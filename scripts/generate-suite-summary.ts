@@ -12,10 +12,14 @@ if (!suite) {
 }
 
 const playwrightBin = path.join(process.cwd(), 'node_modules', '.bin', process.platform === 'win32' ? 'playwright.cmd' : 'playwright');
+const outputDir = process.env.SUITE_SUMMARY_OUTPUT_DIR || 'test-results';
 
 const listResult = spawnSync(playwrightBin, ['test', '--list'], {
   cwd: process.cwd(),
-  env: process.env,
+  env: {
+    ...process.env,
+    PLAYWRIGHT_JSON_OUTPUT: path.join(outputDir, `${selectedSuite}-list.json`),
+  },
   encoding: 'utf8',
   shell: process.platform === 'win32',
 });
@@ -36,7 +40,6 @@ const testNames = listResult.stdout
 
 const mode = suite.mode ?? frameworkConfig.suite.executionMode;
 const workers = process.env.PLAYWRIGHT_WORKERS || String(suite.workers ?? (mode === 'parallel' ? frameworkConfig.playwright.workers : 1));
-const outputDir = process.env.SUITE_SUMMARY_OUTPUT_DIR || 'test-results';
 
 const treeLines = testNames.map((testName, index) => {
   const branch = index === testNames.length - 1 ? '`--' : '|--';
@@ -44,7 +47,7 @@ const treeLines = testNames.map((testName, index) => {
 });
 
 const markdown = [
-  `## run-suite (${selectedSuite})`,
+  `## Planned tests: ${selectedSuite}`,
   '',
   `- **Description:** ${suite.description}`,
   `- **Kind:** \`${suite.kind}\``,
@@ -53,7 +56,7 @@ const markdown = [
   `- **Tests:** ${testNames.length}`,
   '',
   '```text',
-  `run-suite (${selectedSuite}) [${mode}]`,
+  `${selectedSuite} [${mode}, ${workers} worker${workers === '1' ? '' : 's'}]`,
   ...treeLines,
   '```',
   '',

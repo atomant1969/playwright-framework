@@ -267,17 +267,17 @@ test-results/suite-matrix.md
 In GitHub Actions, the workflow uses this matrix so each selected suite appears as a separate realtime job:
 
 ```text
-plan
-run-suite (smoke)
-run-suite (api_smoke)
+select-suites
+suite 1 - smoke [parallel, 3 workers]
+suite 2 - api_smoke [parallel, 3 workers]
 ```
 
-For `TEST_SUITE=parallel`, every key in `PARALLEL_SUITE_KEYS` becomes its own `run-suite (...)` job. Inside each job, the suite still controls whether its internal tests run serially or in parallel.
+For `TEST_SUITE=parallel`, every key in `PARALLEL_SUITE_KEYS` becomes its own `suite ...` job. Inside each job, the suite still controls whether its internal tests run serially or in parallel.
 
-Each `run-suite (...)` job also writes a Markdown test tree to the GitHub job summary:
+Each suite job also writes a Markdown test tree to the GitHub job summary:
 
 ```text
-run-suite (demo_parallel_beta) [parallel]
+demo_parallel_beta [parallel, 3 workers]
 |-- beta parallel test 1
 |-- beta parallel test 2
 `-- beta parallel test 3

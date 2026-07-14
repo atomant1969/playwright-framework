@@ -59,11 +59,17 @@ export function buildSuiteMatrix(registry: TestSuiteRegistry, suiteKeys: string[
 
 export function renderSuiteMatrixMarkdown(matrix: SuiteMatrix, selectedSuite: string): string {
   const lines: string[] = [];
+  const totalWorkers = matrix.include.reduce((total, item) => total + item.workers, 0);
+  const serialSuites = matrix.include.filter((item) => item.mode === 'serial').length;
+  const parallelSuites = matrix.include.filter((item) => item.mode === 'parallel').length;
 
-  lines.push('# Suite Matrix');
+  lines.push('# Selected Suites');
   lines.push('');
   lines.push(`- **Selected suite input:** \`${selectedSuite}\``);
   lines.push(`- **Suite jobs:** ${matrix.include.length}`);
+  lines.push(`- **Serial suites:** ${serialSuites}`);
+  lines.push(`- **Parallel suites:** ${parallelSuites}`);
+  lines.push(`- **Allocated workers:** ${totalWorkers}`);
   lines.push('');
   lines.push('| Order | Suite | Kind | Mode | Workers | Description |');
   lines.push('| :--- | :--- | :--- | :--- | :--- | :--- |');

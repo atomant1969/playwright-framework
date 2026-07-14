@@ -17,8 +17,8 @@ on:
         default: smoke,api_smoke
 
 jobs:
-  plan:
-    name: plan
+  select-suites:
+    name: select-suites
     timeout-minutes: 15
     runs-on: ubuntu-latest
     outputs:
@@ -63,14 +63,14 @@ jobs:
           retention-days: 30
 
   run-suite:
-    name: run-suite (${{ matrix.suite }})
-    needs: plan
-    if: ${{ needs.plan.outputs.suite_count != '0' }}
+    name: suite ${{ matrix.order }} - ${{ matrix.suite }} [${{ matrix.mode }}, ${{ matrix.workers }} workers]
+    needs: select-suites
+    if: ${{ needs.select-suites.outputs.suite_count != '0' }}
     timeout-minutes: 60
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix: ${{ fromJson(needs.plan.outputs.suite_matrix) }}
+      matrix: ${{ fromJson(needs.select-suites.outputs.suite_matrix) }}
     env:
       TEST_SUITE: ${{ matrix.suite }}
       PLAYWRIGHT_WORKERS: ${{ matrix.workers }}

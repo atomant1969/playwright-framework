@@ -13,6 +13,7 @@ type JsonResult = {
 
 type JsonTest = {
   title: string;
+  status?: string;
   outcome?: string;
   results?: JsonResult[];
 };
@@ -76,7 +77,7 @@ function collectRowsFromSuite(jsonSuite: JsonSuite, rows: TestResultRow[]): void
       const lastResult = test.results?.at(-1);
       rows.push({
         title: test.title || spec.title,
-        status: normalizeStatus(test.outcome || lastResult?.status),
+        status: normalizeStatus(test.outcome || test.status || lastResult?.status),
         durationMs: test.results?.reduce((total, result) => total + (result.duration ?? 0), 0) ?? 0,
         error: lastResult?.error?.message ?? '',
       });
@@ -117,7 +118,7 @@ const failed = rows.filter((row) => row.status === 'FAIL').length;
 const skipped = rows.filter((row) => row.status === 'SKIP').length;
 
 const lines = [
-  `## run-suite (${selectedSuite}) results`,
+  `## Results: ${selectedSuite}`,
   '',
   `- **Passed:** ${passed}`,
   `- **Failed:** ${failed}`,
@@ -139,6 +140,10 @@ fs.mkdirSync(outputDir, { recursive: true });
 fs.writeFileSync(path.join(outputDir, `${selectedSuite}-results.md`), markdown, 'utf8');
 
 process.stdout.write(markdown);
+
+for (const row of rows.filter((resultRow) => resultRow.status === 'FAIL')) {
+  process.stdout.write(`\n::error title=${cleanCell(selectedSuite)} failed::${cleanCell(row.title)} ${cleanCell(row.error)}\n`);
+}
 
 const githubStepSummary = process.env.GITHUB_STEP_SUMMARY;
 if (githubStepSummary) {
