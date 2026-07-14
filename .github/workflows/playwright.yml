@@ -7,14 +7,14 @@ on:
     branches: [main, canary]
   workflow_dispatch:
     inputs:
-      test_suite:
-        description: Suite key to run. Use "parallel" to run PARALLEL_SUITE_KEYS as separate suite jobs.
-        required: true
-        default: smoke
-      parallel_suite_keys:
-        description: Comma-separated suite keys used when test_suite is "parallel".
+      test_suite_override:
+        description: Optional suite key override. Leave blank to use .env/framework.config.ts.
         required: false
-        default: smoke,api_smoke
+        default: ''
+      parallel_suite_keys_override:
+        description: Optional comma-separated suite key override. Leave blank to use .env/framework.config.ts.
+        required: false
+        default: ''
 
 jobs:
   select-suites:
@@ -25,8 +25,8 @@ jobs:
       suite_matrix: ${{ steps.matrix.outputs.suite_matrix }}
       suite_count: ${{ steps.matrix.outputs.suite_count }}
     env:
-      TEST_SUITE: ${{ inputs.test_suite || 'smoke' }}
-      PARALLEL_SUITE_KEYS: ${{ inputs.parallel_suite_keys || 'smoke,api_smoke' }}
+      TEST_SUITE_OVERRIDE: ${{ inputs.test_suite_override || '' }}
+      PARALLEL_SUITE_KEYS_OVERRIDE: ${{ inputs.parallel_suite_keys_override || '' }}
       HEADLESS: true
     steps:
       - uses: actions/checkout@v5
@@ -41,10 +41,21 @@ jobs:
         run: pnpm doctor
       - name: Typecheck
         run: pnpm typecheck
+      - name: Apply workflow overrides
+        shell: bash
+        run: |
+          if [ -n "$TEST_SUITE_OVERRIDE" ]; then
+            echo "TEST_SUITE=$TEST_SUITE_OVERRIDE" >> "$GITHUB_ENV"
+          fi
+          if [ -n "$PARALLEL_SUITE_KEYS_OVERRIDE" ]; then
+            echo "PARALLEL_SUITE_KEYS=$PARALLEL_SUITE_KEYS_OVERRIDE" >> "$GITHUB_ENV"
+          fi
       - name: Show workflow inputs
         run: |
-          echo "TEST_SUITE=$TEST_SUITE"
-          echo "PARALLEL_SUITE_KEYS=$PARALLEL_SUITE_KEYS"
+          echo "TEST_SUITE=${TEST_SUITE:-<from config>}"
+          echo "PARALLEL_SUITE_KEYS=${PARALLEL_SUITE_KEYS:-<from config>}"
+          echo "TEST_SUITE_OVERRIDE=${TEST_SUITE_OVERRIDE:-<none>}"
+          echo "PARALLEL_SUITE_KEYS_OVERRIDE=${PARALLEL_SUITE_KEYS_OVERRIDE:-<none>}"
       - name: Validate suite registry
         run: pnpm validate:suites
       - name: Check formatting

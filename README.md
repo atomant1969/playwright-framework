@@ -241,6 +241,16 @@ CI runs the framework doctor, typecheck, suite validation, format check, lint, g
 
 ## GitHub Suite Matrix
 
+GitHub Actions is config-first. Push, pull request, and manual runs use the committed `.env` and `framework.config.ts` values by default:
+
+```text
+TEST_SUITE
+PARALLEL_SUITE_KEYS
+PLAYWRIGHT_WORKERS
+```
+
+Manual workflow inputs are optional overrides only. Leave `test_suite_override` and `parallel_suite_keys_override` blank to run exactly what the project config selects.
+
 The framework can convert the selected suite configuration into a GitHub Actions matrix:
 
 ```bash
