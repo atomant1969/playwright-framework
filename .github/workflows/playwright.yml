@@ -51,7 +51,7 @@ jobs:
         id: matrix
         run: pnpm matrix
       - uses: actions/upload-artifact@v4
-        if: ${{ !cancelled() }}
+        if: ${{ success() }}
         with:
           name: suite-matrix
           path: test-results/suite-matrix.*
@@ -69,6 +69,7 @@ jobs:
       matrix: ${{ fromJson(needs.plan.outputs.suite_matrix) }}
     env:
       TEST_SUITE: ${{ matrix.suite }}
+      PLAYWRIGHT_WORKERS: ${{ matrix.workers }}
       HEADLESS: true
     steps:
       - uses: actions/checkout@v5
@@ -84,6 +85,7 @@ jobs:
           echo "Suite: ${{ matrix.suite }}"
           echo "Kind: ${{ matrix.kind }}"
           echo "Mode: ${{ matrix.mode }}"
+          echo "Workers: ${{ matrix.workers }}"
           echo "Description: ${{ matrix.description }}"
       - name: Install Playwright browsers
         run: pnpm exec playwright install --with-deps

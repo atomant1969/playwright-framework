@@ -45,6 +45,7 @@ export const frameworkConfig = {
     actionTimeoutMs: parseNumber(process.env.ACTION_TIMEOUT_MS, 10_000),
     testTimeoutMs: parseNumber(process.env.TEST_TIMEOUT_MS, 30_000),
     globalTimeoutMs: parseNumber(process.env.GLOBAL_TIMEOUT_MS, 60 * 60 * 1000),
+    workers: parseNumber(process.env.PLAYWRIGHT_WORKERS, 3),
     retries: process.env.CI ? 1 : parseNumber(process.env.RETRIES, 0),
   },
 
@@ -66,6 +67,7 @@ export const ENV = {
   ACTION_TIMEOUT_MS: frameworkConfig.playwright.actionTimeoutMs,
   TEST_TIMEOUT_MS: frameworkConfig.playwright.testTimeoutMs,
   GLOBAL_TIMEOUT_MS: frameworkConfig.playwright.globalTimeoutMs,
+  PLAYWRIGHT_WORKERS: frameworkConfig.playwright.workers,
   LOG_LEVEL: frameworkConfig.logging.level,
 };
 

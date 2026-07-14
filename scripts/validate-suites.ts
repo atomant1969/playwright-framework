@@ -11,6 +11,9 @@ for (const [suiteKey, suite] of Object.entries(testSuites)) {
   if (!suite.description?.trim()) errors.push(`${suiteKey}: missing description.`);
   if (!['ui', 'api', 'mixed'].includes(suite.kind)) errors.push(`${suiteKey}: invalid kind "${suite.kind}".`);
   if (suite.mode && !['serial', 'parallel'].includes(suite.mode)) errors.push(`${suiteKey}: invalid mode "${suite.mode}".`);
+  if (suite.workers !== undefined && (!Number.isInteger(suite.workers) || suite.workers < 1)) {
+    errors.push(`${suiteKey}: workers must be a positive integer.`);
+  }
   if (!Array.isArray(suite.tests) || suite.tests.length === 0) errors.push(`${suiteKey}: must define at least one runner.`);
 
   for (const [index, runner] of suite.tests.entries()) {

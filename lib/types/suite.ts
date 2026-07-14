@@ -11,6 +11,7 @@ export type TestSuiteDefinition = {
   description: string;
   kind: SuiteKind;
   mode?: SuiteExecutionMode;
+  workers?: number;
   tags?: string[];
   owner?: string;
   tests: TestRunnerDefinition[];
