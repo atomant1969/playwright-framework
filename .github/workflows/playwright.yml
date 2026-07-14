@@ -91,6 +91,8 @@ jobs:
           echo "Mode: ${{ matrix.mode }}"
           echo "Workers: ${{ matrix.workers }}"
           echo "Description: ${{ matrix.description }}"
+      - name: Generate suite test summary
+        run: pnpm suite:summary
       - name: Install Playwright browsers
         run: pnpm exec playwright install --with-deps
       - name: Run suite ${{ matrix.suite }}

@@ -274,6 +274,17 @@ run-suite (api_smoke)
 
 For `TEST_SUITE=parallel`, every key in `PARALLEL_SUITE_KEYS` becomes its own `run-suite (...)` job. Inside each job, the suite still controls whether its internal tests run serially or in parallel.
 
+Each `run-suite (...)` job also writes a Markdown test tree to the GitHub job summary:
+
+```text
+run-suite (demo_parallel_beta) [parallel]
+|-- beta parallel test 1
+|-- beta parallel test 2
+`-- beta parallel test 3
+```
+
+Use `pnpm suite:summary` locally to generate the same summary for the selected `TEST_SUITE`.
+
 ## Suite Model
 
 Suites live in `testSuiteConfig.ui.ts` and `testSuiteConfig.api.ts`.

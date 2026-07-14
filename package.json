@@ -16,6 +16,7 @@
     "doctor": "tsx scripts/doctor.ts",
     "typecheck": "tsc --noEmit",
     "validate:suites": "tsx scripts/validate-suites.ts",
+    "suite:summary": "tsx scripts/generate-suite-summary.ts",
     "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix",
     "format": "prettier . --write",
