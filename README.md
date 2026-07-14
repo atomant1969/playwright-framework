@@ -38,8 +38,10 @@ setup.ts
 lib/types/suite.ts
 lib/utils/logger.ts
 lib/utils/suiteSelection.ts
+lib/utils/suiteMatrix.ts
 scripts/validate-suites.ts
 scripts/doctor.ts
+scripts/generate-suite-matrix.ts
 templates/
 ```
 
@@ -179,16 +181,9 @@ Framework configuration lives in one file:
 framework.config.ts
 ```
 
-A dummy `.env` is committed so a fresh clone can run immediately. Keep real secrets in ignored local files such as `.env.local` or CI environment variables. Do not define framework defaults in multiple places.
+A dummy `.env` is committed so a fresh clone can run immediately. Use `.env` only for runtime overrides such as `TEST_SUITE`, `BASE_URL`, credentials, and headless mode. Keep real secrets in ignored local files such as `.env.local` or CI environment variables.
 
 ## Run
-
-Show the execution plan:
-
-```bash
-pnpm plan
-bun run plan
-```
 
 Run the default suite from `.env`:
 
@@ -242,41 +237,42 @@ pnpm format
 pnpm lint:fix
 ```
 
-CI runs the framework doctor, typecheck, suite validation, format check, lint, prints the execution plan into the GitHub job summary, installs browser system dependencies, and runs the smoke suite.
+CI runs the framework doctor, typecheck, suite validation, format check, lint, generates a GitHub suite matrix, and runs each selected suite as its own realtime GitHub Actions job.
 
-## Execution Plan
+## GitHub Suite Matrix
 
-The framework can print the suites and registered runner functions that will execute before Playwright starts.
+The framework can convert the selected suite configuration into a GitHub Actions matrix:
 
 ```bash
-pnpm plan
-bun run plan
+pnpm matrix
+bun run matrix
 ```
 
-The plan includes:
+The matrix includes:
 
-- selected suite key
-- run mode: `serial`, `parallel`, or `hybrid`
+- suite key
 - suite order
-- suite execution mode
-- runner function names
-- runner descriptions
+- suite kind: `ui`, `api`, or `mixed`
+- suite mode: `serial` or `parallel`
+- suite description
 
 The command writes artifacts to:
 
 ```text
-test-results/execution-plan.json
-test-results/execution-plan.md
+test-results/suite-matrix.json
+test-results/suite-matrix.compact.json
+test-results/suite-matrix.md
 ```
 
-In GitHub Actions, `pnpm plan` also writes the Markdown plan to the job summary through `GITHUB_STEP_SUMMARY`.
+In GitHub Actions, the workflow uses this matrix so each selected suite appears as a separate realtime job:
 
-To print the plan and then run tests locally:
-
-```bash
-pnpm test:with-plan
-bun run test:with-plan
+```text
+plan
+run-suite (smoke)
+run-suite (api_smoke)
 ```
+
+For `TEST_SUITE=parallel`, every key in `PARALLEL_SUITE_KEYS` becomes its own `run-suite (...)` job. Inside each job, the suite still controls whether its internal tests run serially or in parallel.
 
 ## Suite Model
 

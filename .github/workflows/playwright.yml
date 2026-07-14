@@ -5,13 +5,28 @@ on:
     branches: [main, canary]
   pull_request:
     branches: [main, canary]
+  workflow_dispatch:
+    inputs:
+      test_suite:
+        description: Suite key to run. Use "parallel" to run PARALLEL_SUITE_KEYS as separate suite jobs.
+        required: true
+        default: smoke
+      parallel_suite_keys:
+        description: Comma-separated suite keys used when test_suite is "parallel".
+        required: false
+        default: smoke,api_smoke
 
 jobs:
-  test:
-    timeout-minutes: 60
+  plan:
+    name: plan
+    timeout-minutes: 15
     runs-on: ubuntu-latest
+    outputs:
+      suite_matrix: ${{ steps.matrix.outputs.suite_matrix }}
+      suite_count: ${{ steps.matrix.outputs.suite_count }}
     env:
-      TEST_SUITE: smoke
+      TEST_SUITE: ${{ inputs.test_suite || 'smoke' }}
+      PARALLEL_SUITE_KEYS: ${{ inputs.parallel_suite_keys || 'smoke,api_smoke' }}
       HEADLESS: true
     steps:
       - uses: actions/checkout@v5
@@ -34,22 +49,60 @@ jobs:
         run: pnpm format:check
       - name: Lint
         run: pnpm lint
-      - name: Show execution plan
-        run: pnpm plan
+      - name: Generate suite matrix
+        id: matrix
+        run: pnpm matrix
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: suite-matrix
+          path: test-results/suite-matrix.*
+          if-no-files-found: error
+          retention-days: 30
+
+  run-suite:
+    name: run-suite (${{ matrix.suite }})
+    needs: plan
+    if: ${{ needs.plan.outputs.suite_count != '0' }}
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.plan.outputs.suite_matrix) }}
+    env:
+      TEST_SUITE: ${{ matrix.suite }}
+      HEADLESS: true
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.4
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Show selected suite
+        run: |
+          echo "Suite: ${{ matrix.suite }}"
+          echo "Kind: ${{ matrix.kind }}"
+          echo "Mode: ${{ matrix.mode }}"
+          echo "Description: ${{ matrix.description }}"
       - name: Install Playwright browsers
         run: pnpm exec playwright install --with-deps
-      - name: Run smoke suite
+      - name: Run suite ${{ matrix.suite }}
         run: pnpm test
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
-          name: execution-plan
-          path: test-results/execution-plan.*
-          if-no-files-found: ignore
+          name: playwright-report-${{ matrix.suite }}
+          path: playwright-report/
           retention-days: 30
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
-          name: playwright-report
-          path: playwright-report/
+          name: test-results-${{ matrix.suite }}
+          path: test-results/
+          if-no-files-found: ignore
           retention-days: 30

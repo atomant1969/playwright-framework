@@ -22,8 +22,7 @@
     "format:check": "prettier . --check",
     "browsers:install": "playwright install",
     "allure:generate": "allure generate allure-results -o allure-report --clean",
-    "plan": "tsx scripts/generate-execution-plan.ts",
-    "test:with-plan": "tsx scripts/generate-execution-plan.ts && playwright test"
+    "matrix": "tsx scripts/generate-suite-matrix.ts"
   },
   "devDependencies": {
     "@eslint/js": "^9.18.0",
