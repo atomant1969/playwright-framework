@@ -1,4 +1,5 @@
-import { testSuites, PARALLEL_SUITE_KEYS } from '../testSuiteConfig';
+import { testSuites } from '../testSuiteConfig';
+import { getSelectedSuiteKeys, validateSelectedSuites } from '../lib/utils/suiteSelection';
 
 const errors: string[] = [];
 const suiteKeys = Object.keys(testSuites);
@@ -22,8 +23,12 @@ for (const [suiteKey, suite] of Object.entries(testSuites)) {
   }
 }
 
-for (const suiteKey of PARALLEL_SUITE_KEYS) {
-  if (!testSuites[suiteKey]) errors.push(`PARALLEL_SUITE_KEYS contains unknown suite "${suiteKey}".`);
+try {
+  const selectedSuiteKeys = getSelectedSuiteKeys();
+  validateSelectedSuites(testSuites, selectedSuiteKeys);
+  console.log(`Selected suite key(s): ${selectedSuiteKeys.join(', ')}`);
+} catch (error) {
+  errors.push(error instanceof Error ? error.message : String(error));
 }
 
 if (errors.length > 0) {

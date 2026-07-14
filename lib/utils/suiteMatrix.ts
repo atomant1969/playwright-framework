@@ -25,13 +25,13 @@ function resolveSuiteWorkers(mode: SuiteExecutionMode, workers: number | undefin
 export function parseSuiteKeysFromInput(rawSuite: string, rawParallelSuiteKeys: string): string[] {
   if (rawSuite === 'parallel') {
     return rawParallelSuiteKeys
-      .split(',')
+      .split(/[,\s]+/)
       .map((suite) => suite.trim())
       .filter(Boolean);
   }
 
   return rawSuite
-    .split(',')
+    .split(/[,\s]+/)
     .map((suite) => suite.trim())
     .filter(Boolean);
 }

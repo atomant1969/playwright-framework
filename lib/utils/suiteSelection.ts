@@ -2,14 +2,16 @@ import { ENV } from '../../config';
 import { TestSuiteRegistry } from '../types/suite';
 
 export function parseParallelSuiteKeys(): string[] {
-  return ENV.PARALLEL_SUITE_KEYS.split(',')
+  return ENV.PARALLEL_SUITE_KEYS.split(/[,\s]+/)
     .map((key) => key.trim())
     .filter(Boolean);
 }
 
 export function getSelectedSuiteKeys(): string[] {
   if (ENV.TEST_SUITE === 'parallel') return parseParallelSuiteKeys();
-  return [ENV.TEST_SUITE];
+  return ENV.TEST_SUITE.split(/[,\s]+/)
+    .map((key) => key.trim())
+    .filter(Boolean);
 }
 
 export function validateSelectedSuites(registry: TestSuiteRegistry, selectedKeys: string[]): void {

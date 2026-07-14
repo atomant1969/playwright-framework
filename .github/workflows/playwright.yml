@@ -41,6 +41,10 @@ jobs:
         run: pnpm doctor
       - name: Typecheck
         run: pnpm typecheck
+      - name: Show workflow inputs
+        run: |
+          echo "TEST_SUITE=$TEST_SUITE"
+          echo "PARALLEL_SUITE_KEYS=$PARALLEL_SUITE_KEYS"
       - name: Validate suite registry
         run: pnpm validate:suites
       - name: Check formatting
