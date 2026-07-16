@@ -17,9 +17,17 @@ for (const [suiteKey, suite] of Object.entries(testSuites)) {
   }
   if (!Array.isArray(suite.tests) || suite.tests.length === 0) errors.push(`${suiteKey}: must define at least one runner.`);
 
-  for (const [index, runner] of suite.tests.entries()) {
-    if (typeof runner.test !== 'function') errors.push(`${suiteKey}.tests[${index}]: test is not a function.`);
-    if (!runner.description?.trim()) errors.push(`${suiteKey}.tests[${index}]: missing description.`);
+  for (const [index, entry] of suite.tests.entries()) {
+    if (!entry.description?.trim()) errors.push(`${suiteKey}.tests[${index}]: missing description.`);
+
+    if ('suite' in entry) {
+      if (!entry.suite?.trim()) errors.push(`${suiteKey}.tests[${index}]: missing nested suite key.`);
+      else if (!testSuites[entry.suite]) errors.push(`${suiteKey}.tests[${index}]: unknown nested suite "${entry.suite}".`);
+      else if (entry.suite === suiteKey) errors.push(`${suiteKey}.tests[${index}]: nested suite cannot reference itself.`);
+      continue;
+    }
+
+    if (typeof entry.test !== 'function') errors.push(`${suiteKey}.tests[${index}]: test is not a function.`);
   }
 }
 

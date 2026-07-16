@@ -6,4 +6,5 @@ allure-results/
 test-results/
 blob-report/
 logs/
+*.code-workspace
 pnpm-lock.yaml

@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Autotest Admin Dashboard</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="layout">
+      <header class="topbar">
+        <div>
+          <h1>Autotest Admin Dashboard</h1>
+          <p id="activeSummary">Loading configuration...</p>
+        </div>
+        <div class="toolbar">
+          <button
+            id="saveButton"
+            type="button"
+            data-tooltip="Save the current dashboard settings to framework.config.json.
+
+This updates the main runtime config used by local runs.
+
+Secrets stay in .env and are not written here."
+          >
+            Save
+          </button>
+          <button
+            id="doctorButton"
+            type="button"
+            data-tooltip="Run the framework doctor.
+
+Checks required config files, suite registry health, and environment shape.
+
+This does not run Playwright tests."
+          >
+            Doctor
+          </button>
+          <button
+            id="validateButton"
+            type="button"
+            data-tooltip="Validate the suite registry.
+
+Checks that registered suites, nested suite references, modes, workers, and selected targets are valid."
+          >
+            Validate
+          </button>
+          <button
+            id="matrixButton"
+            type="button"
+            data-tooltip="Build the suite matrix for the current Run target.
+
+Shows which suite jobs, nested suites, cases, modes, and workers will be used before running tests."
+          >
+            Matrix
+          </button>
+          <button
+            id="runButton"
+            class="primary"
+            type="button"
+            data-tooltip="Run the selected Playwright target.
+
+The dialog shows live suite and case status:
+- pending
+- running
+- passed
+- failed"
+          >
+            Run
+          </button>
+        </div>
+      </header>
+
+      <section class="content">
+        <div class="main-column">
+          <form id="configForm" class="surface config-form">
+            <section>
+              <h2>Suite</h2>
+              <input name="suiteExecutionMode" type="hidden" value="serial" />
+              <label
+                data-tooltip="Choose what the Run button will execute.
+
+Select a named suite, a single registered test case, or Parallel run.
+
+Saved to framework.config.json as testSuite.
+
+If you choose Parallel run, the Parallel suite keys field decides which targets are included."
+              >
+                Run target
+                <select name="testSuite" id="suiteSelect"></select>
+              </label>
+              <label
+                id="parallelSuiteKeysField"
+                data-tooltip="Comma-separated list of suite or case keys to run when Run target is Parallel run.
+
+Examples:
+U004_1,U004_2,U004_3
+U001,U005,U006
+
+Saved to framework.config.json as parallelSuiteKeys.
+
+Use the Run Targets list on the right to add known targets. The matrix dialog shows exactly how nested suites and cases will expand before running."
+              >
+                Parallel suite keys
+                <span class="input-with-action">
+                  <input name="parallelSuiteKeys" placeholder="U005,U006" />
+                  <button
+                    id="recommendedParallelButton"
+                    type="button"
+                    data-tooltip="Fill or clear the recommended parallel target list.
+
+First click adds the recommended parallel-safe targets.
+Second click clears the field."
+                  >
+                    Preset
+                  </button>
+                </span>
+              </label>
+            </section>
+
+            <section>
+              <h2>Runtime</h2>
+              <div class="field-grid thirds">
+                <label
+                  data-tooltip="Number of Playwright worker processes allowed for the run.
+
+Higher values can make independent tests faster, but shared test data can conflict if unsafe targets run together.
+
+Saved to framework.config.json as workers.
+
+For serial suites, suite metadata may still force a single worker where required."
+                >
+                  Workers
+                  <input name="workers" type="number" min="1" step="1" />
+                </label>
+                <label
+                  data-tooltip="Number of times Playwright retries a failed test before marking it failed.
+
+Retries can reduce noise from temporary page-load or network issues, but they can also hide flaky behavior.
+
+Saved to framework.config.json as retries.
+
+Use 0 when you want the first failure to be visible immediately."
+                >
+                  Retries
+                  <input name="retries" type="number" min="0" step="1" />
+                </label>
+                <label
+                  class="checkbox-field"
+                  data-tooltip="Controls whether browser UI windows are visible during test runs.
+
+Enabled means headless mode: tests run without visible browser windows and are usually faster.
+
+Disabled means headed mode: browser windows are visible, which is useful for debugging.
+
+Saved to framework.config.json as headless."
+                >
+                  <input name="headless" type="checkbox" />
+                  <span>Headless</span>
+                </label>
+              </div>
+            </section>
+
+            <section>
+              <h2>Environment</h2>
+              <div class="field-grid">
+                <label
+                  data-tooltip="ERP web application URL used by UI tests.
+
+This is the page origin Playwright opens before navigating through the application.
+
+Saved to framework.config.json as baseUrl.
+
+The API endpoint field is derived from this value, so changing Base URL also changes the API URL used for API login and API tests."
+                >
+                  Base URL
+                  <input name="baseUrl" />
+                </label>
+                <label
+                  data-tooltip="Read-only API URL derived from Base URL.
+
+For stage, https://stage.pksep.ru becomes https://stage.pksep.ru/api/.
+
+This field is shown so you can confirm what the framework will use for API login and API-style tests.
+
+It is not edited directly; change Base URL instead."
+                >
+                  API endpoint
+                  <input name="apiEndpoint" readonly />
+                </label>
+                <label
+                  data-tooltip="Timezone passed into the Playwright browser context.
+
+This affects date/time rendering and calculations in tests that compare UI dates, deadlines, working hours, or localized values.
+
+Saved to framework.config.json as timezoneId.
+
+Use the timezone expected by the application environment unless a test specifically requires another one."
+                >
+                  Timezone
+                  <input name="timezoneId" />
+                </label>
+                <label
+                  data-tooltip="Minimum log level shown by framework logging.
+
+error: only failures and critical messages
+warn: warnings and errors
+info: normal run progress plus warnings/errors
+debug: detailed diagnostic output
+
+Saved to framework.config.json as logLevel.
+
+Use debug only when investigating a problem because it can make output noisy."
+                >
+                  Log level
+                  <select name="logLevel">
+                    <option value="error">error</option>
+                    <option value="warn">warn</option>
+                    <option value="info">info</option>
+                    <option value="debug">debug</option>
+                  </select>
+                </label>
+              </div>
+            </section>
+
+            <section>
+              <h2>Timeouts</h2>
+              <div class="field-grid thirds">
+                <label
+                  data-tooltip="Maximum time Playwright waits for one browser action.
+
+Examples include clicking a button, filling an input, waiting for a locator, or checking visibility.
+
+Saved to framework.config.json as actionTimeoutMs.
+
+Increase this when the ERP page is slow to render controls, but avoid using it to hide broken selectors."
+                >
+                  Action timeout ms
+                  <input name="actionTimeoutMs" type="number" min="1000" step="1000" />
+                </label>
+                <label
+                  data-tooltip="Maximum time one Playwright test case may run before timing out.
+
+This includes setup, navigation, actions, assertions, and cleanup inside that test.
+
+Saved to framework.config.json as testTimeoutMs.
+
+Increase this for long business workflows; if many tests hit this limit, check page loading or test data setup."
+                >
+                  Test timeout ms
+                  <input name="testTimeoutMs" type="number" min="1000" step="1000" />
+                </label>
+                <label
+                  data-tooltip="Maximum total time for the whole Playwright command.
+
+This is a run-level safety limit across all workers and all selected tests.
+
+Saved to framework.config.json as globalTimeoutMs.
+
+Use this to stop a stuck full run, especially when running large parallel suites or CI jobs."
+                >
+                  Global timeout ms
+                  <input name="globalTimeoutMs" type="number" min="1000" step="1000" />
+                </label>
+              </div>
+            </section>
+          </form>
+
+          <section class="surface output-section">
+            <div class="output-header">
+              <h2>Output</h2>
+              <button
+                id="clearButton"
+                type="button"
+                data-tooltip="Clear the output panel text.
+
+This only clears the dashboard display. It does not delete test results, reports, or log files."
+              >
+                Clear
+              </button>
+            </div>
+            <pre id="output"></pre>
+          </section>
+        </div>
+
+        <aside class="sidebar">
+          <section class="surface" id="validationPanel" hidden>
+            <h2>Validation</h2>
+            <div id="validationList" class="status-list"></div>
+          </section>
+          <section class="surface">
+            <h2
+              data-tooltip="Secrets are environment keys used for credentials or sensitive runtime values.
+
+This section is discovered dynamically from .env only.
+
+Current effective values are masked by default. Use Show to inspect a value, or Edit to update it in .env.
+
+If you add a key to .env, refresh this page to see it."
+            >
+              Secrets
+            </h2>
+            <div id="secretList" class="status-list"></div>
+          </section>
+          <section class="surface">
+            <h2
+              data-tooltip="Environment overrides are values from .env, your terminal session, or CI/GitHub environment variables.
+
+These values take priority over framework.config.json and the dashboard fields.
+
+If this section lists TEST_SUITE, BASE_URL, HEADLESS, PARALLEL_SUITE_KEYS, or similar values, the framework will use the environment value instead of the saved GUI value.
+
+Use this section when a run does not match what you selected in the dashboard. It tells you which settings are being overridden outside the GUI."
+            >
+              Env Overrides
+            </h2>
+            <div id="overrideList" class="status-list"></div>
+          </section>
+          <section class="surface">
+            <h2>Run Targets</h2>
+            <div class="suite-tabs" role="group" aria-label="Suite type filter">
+              <button
+                type="button"
+                class="suite-tab active"
+                data-kind="all"
+                data-tooltip="Show all run targets, regardless of whether they test the UI or API.
+
+Use this when you want to browse the full registry."
+              >
+                All
+              </button>
+              <button
+                type="button"
+                class="suite-tab"
+                data-kind="ui"
+                data-tooltip="Show UI targets.
+
+These open the browser and interact with the ERP application screens, forms, tables, dialogs, and workflows."
+              >
+                UI
+              </button>
+              <button
+                type="button"
+                class="suite-tab"
+                data-kind="api"
+                data-tooltip="Show API targets.
+
+These call backend endpoints directly instead of driving the browser UI."
+              >
+                API
+              </button>
+            </div>
+            <div class="target-tabs" role="group" aria-label="Run target filter">
+              <button
+                type="button"
+                class="target-tab active"
+                data-target-type="all"
+                data-tooltip="Show every target shape.
+
+Includes grouped suites, individual cases, and bug/regression targets."
+              >
+                All
+              </button>
+              <button
+                type="button"
+                class="target-tab"
+                data-target-type="suite"
+                data-tooltip="Show suites.
+
+A suite is a grouped target that contains multiple cases or nested child suites. Running it may execute many Playwright tests."
+              >
+                Suites
+              </button>
+              <button
+                type="button"
+                class="target-tab"
+                data-target-type="testCase"
+                data-tooltip="Show single cases.
+
+A single case is a small runnable target with one registered test runner."
+              >
+                Single cases
+              </button>
+              <button
+                type="button"
+                class="target-tab"
+                data-target-type="bug"
+                data-tooltip="Show bug/regression targets.
+
+These are focused checks created for a specific bug ticket or previously broken behavior."
+              >
+                Bugs
+              </button>
+            </div>
+            <div class="safety-tabs" role="group" aria-label="Parallel safety filter">
+              <button
+                type="button"
+                class="safety-tab active"
+                data-parallel-safety="all"
+                data-tooltip="Show targets from every safety category.
+
+Includes parallel-safe, read-only, unsafe, and unknown targets."
+              >
+                All
+              </button>
+              <button
+                type="button"
+                class="safety-tab"
+                data-parallel-safety="safe"
+                data-tooltip="Show parallel-safe targets.
+
+These may create, edit, or delete data, but they are designed to use isolated data and can usually run alongside other safe targets."
+              >
+                Parallel-safe
+              </button>
+              <button
+                type="button"
+                class="safety-tab"
+                data-parallel-safety="readOnly"
+                data-tooltip="Read-only targets only inspect or validate existing data.
+
+They should not:
+- create records
+- edit records
+- delete records
+- clean up records
+
+They open pages, read tables/modals, and compare values."
+              >
+                Read-only
+              </button>
+              <button
+                type="button"
+                class="safety-tab"
+                data-parallel-safety="unsafe"
+                data-tooltip="Show unsafe targets.
+
+Unsafe does not mean the test is bad. It means the target may depend on shared state, strict ordering, or data created by another step.
+
+These targets may create, edit, delete, or clean up records in ways that can conflict with other tests.
+
+Run them alone or only inside a suite that manages the required setup and cleanup."
+              >
+                Unsafe
+              </button>
+            </div>
+            <input id="suiteFilter" class="filter" placeholder="Filter suites" />
+            <div id="suiteList" class="suite-list"></div>
+          </section>
+        </aside>
+      </section>
+    </main>
+
+    <div id="runModal" class="modal-backdrop" hidden>
+      <section class="run-modal" role="dialog" aria-modal="true" aria-labelledby="runModalTitle">
+        <header class="run-modal-header">
+          <div>
+            <h2 id="runModalTitle">Run Status</h2>
+            <p id="runModalSubtitle">Preparing run...</p>
+          </div>
+          <button
+            id="closeRunModalButton"
+            type="button"
+            data-tooltip="Close this status dialog.
+
+Closing the dialog does not stop a running command."
+          >
+            Close
+          </button>
+        </header>
+        <div class="run-status-grid">
+          <div>
+            <span>Status</span>
+            <strong id="runStatus">pending</strong>
+          </div>
+          <div>
+            <span>Suite</span>
+            <strong id="runSuite">-</strong>
+          </div>
+          <div>
+            <span>Workers</span>
+            <strong id="runWorkers">-</strong>
+          </div>
+          <div>
+            <span>Retries</span>
+            <strong id="runRetries">-</strong>
+          </div>
+          <div>
+            <span>Browser</span>
+            <strong id="runBrowserMode">-</strong>
+          </div>
+          <div>
+            <span>Elapsed</span>
+            <strong id="runElapsed">0s</strong>
+          </div>
+        </div>
+        <div class="run-output">
+          <div id="runResult" class="run-result" hidden></div>
+          <button
+            id="toggleRunLogButton"
+            class="log-toggle"
+            type="button"
+            data-tooltip="Show or hide the raw command log.
+
+The structured status view stays visible; the raw log is useful for debugging command output and stack traces."
+            hidden
+          >
+            Show raw log
+          </button>
+          <pre id="runOutput" class="run-log"></pre>
+        </div>
+      </section>
+    </div>
+    <script src="/app.js"></script>
+  </body>
+</html>

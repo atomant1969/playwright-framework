@@ -1,0 +1,15 @@
+{
+  "suiteExecutionMode": "parallel",
+  "testSuite": "parallel",
+  "parallelSuiteKeys": "example_complicated",
+  "workers": 6,
+  "retries": 0,
+  "baseUrl": "https://example.com",
+  "timezoneId": "UTC",
+  "logLevel": "info",
+  "actionTimeoutMs": 10000,
+  "testTimeoutMs": 30000,
+  "globalTimeoutMs": 3600000,
+  "headless": false,
+  "apiBaseUrl": "https://example.com/api/"
+}

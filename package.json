@@ -13,6 +13,7 @@
     "test:suite": "playwright test",
     "test:parallel": "cross-env TEST_SUITE=parallel playwright test",
     "test:ui": "playwright test --ui",
+    "admin": "tsx scripts/admin-console.ts",
     "doctor": "tsx scripts/doctor.ts",
     "typecheck": "tsc --noEmit",
     "validate:suites": "tsx scripts/validate-suites.ts",

@@ -15,6 +15,7 @@ Use this checklist when adding the framework to an existing Playwright project.
 Copy the framework files into the project root:
 
 - `framework.config.ts`
+- `framework.config.json`
 - `config.ts`
 - `main.spec.ts`
 - `playwright.config.ts`
@@ -56,7 +57,7 @@ Required scripts:
 
 ## Centralize Config
 
-Move framework defaults to `framework.config.ts`:
+Move framework defaults to `framework.config.json`:
 
 - base URL
 - API base URL
@@ -70,7 +71,7 @@ Move framework defaults to `framework.config.ts`:
 - logging level
 - login enabled/default credential names
 
-Keep `.env` and CI variables for environment-specific values only.
+Keep `.env` and CI variables for secrets and environment-specific overrides only. `framework.config.ts` should remain the loader/normalizer, not the place admins edit routine run settings.
 
 ## Convert Tests Gradually
 

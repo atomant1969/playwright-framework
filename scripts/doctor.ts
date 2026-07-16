@@ -48,9 +48,15 @@ function checkSuiteRegistry(): void {
     if (!suite.description.trim()) errors.push(`${suiteKey}: missing description.`);
     if (!suite.tests.length) errors.push(`${suiteKey}: has no test runners.`);
 
-    for (const [index, runner] of suite.tests.entries()) {
-      if (typeof runner.test !== 'function') errors.push(`${suiteKey}.tests[${index}]: runner is not a function.`);
-      if (!runner.description.trim()) errors.push(`${suiteKey}.tests[${index}]: missing runner description.`);
+    for (const [index, entry] of suite.tests.entries()) {
+      if (!entry.description.trim()) errors.push(`${suiteKey}.tests[${index}]: missing runner description.`);
+
+      if ('suite' in entry) {
+        if (!testSuites[entry.suite]) errors.push(`${suiteKey}.tests[${index}]: nested suite "${entry.suite}" is not registered.`);
+        continue;
+      }
+
+      if (typeof entry.test !== 'function') errors.push(`${suiteKey}.tests[${index}]: runner is not a function.`);
     }
   }
 

@@ -4,10 +4,10 @@ These rules apply to the whole repository.
 
 ## Framework Principles
 
-- Keep framework configuration centralized in `framework.config.ts`.
-- Treat `.env` as committed dummy defaults only. Real secrets belong in `.env.local`, `.env.*.local`, or CI variables.
+- Keep admin-managed runtime configuration centralized in `framework.config.json`.
+- Treat `.env` as committed dummy secrets only. Real secrets belong in `.env.local`, `.env.*.local`, or CI variables.
 - Do not duplicate environment defaults in `playwright.config.ts`, suite registries, setup files, or tests.
-- `playwright.config.ts` is only an adapter from `framework.config.ts` into Playwright's config shape.
+- `framework.config.ts` loads `framework.config.json` and environment overrides; `playwright.config.ts` adapts that normalized config into Playwright's config shape.
 - Playwright should discover only `main.spec.ts`; suite execution is controlled by the registry.
 - Add new tests as exported runner functions and register them in `testSuiteConfig.ui.ts` or `testSuiteConfig.api.ts`.
 - Preserve support for serial, parallel, and hybrid suite execution.

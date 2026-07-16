@@ -28,6 +28,7 @@ Copy these files and folders into the existing project root:
 
 ```text
 framework.config.ts
+framework.config.json
 config.ts
 main.spec.ts
 playwright.config.ts
@@ -56,7 +57,7 @@ eslint.config.mjs
 .github/workflows/playwright.yml
 ```
 
-Do not blindly overwrite an existing `playwright.config.ts`, `.env`, or CI workflow. Compare first, then move project-specific values into `framework.config.ts` or `.env`.
+Do not blindly overwrite an existing `playwright.config.ts`, `.env`, `framework.config.json`, or CI workflow. Compare first, then move project-specific runtime values into `framework.config.json` and secrets into `.env`.
 
 ### 2. Install Dependencies
 
@@ -74,7 +75,7 @@ bun i
 
 ### 3. Centralize Config
 
-Move scattered defaults from old config files into `framework.config.ts`:
+Move scattered runtime defaults from old config files into `framework.config.json`:
 
 - base URLs
 - API URLs
@@ -86,7 +87,7 @@ Move scattered defaults from old config files into `framework.config.ts`:
 - default suite key
 - parallel suite keys
 
-Keep `.env` only for environment-specific overrides and secrets.
+Keep `.env` only for credentials, secrets, and machine-specific overrides.
 
 ### 4. Convert Existing Specs To Runners
 
@@ -171,21 +172,21 @@ TEST_SUITE=existing_feature pnpm test
 
 ### Migration Rule Of Thumb
 
-If a value affects how the framework runs, put the default in `framework.config.ts`. If a value changes per machine, user, CI job, or environment, put it in `.env` or CI environment variables.
+If a value affects how the framework normally runs, put the default in `framework.config.json`. If a value is a secret or changes per machine, user, CI job, or environment, put it in `.env` or CI environment variables.
 
 ## Centralized Config
 
-Framework configuration lives in one file:
+Admin-managed framework configuration lives in one file:
 
 ```text
-framework.config.ts
+framework.config.json
 ```
 
-A dummy `.env` is committed so a fresh clone can run immediately. Use `.env` only for runtime overrides such as `TEST_SUITE`, `BASE_URL`, credentials, and headless mode. Keep real secrets in ignored local files such as `.env.local` or CI environment variables.
+A dummy `.env` is committed so a fresh clone has placeholder credential keys. Use `.env` for credentials, secrets, and deliberate environment overrides only. Keep real secrets in ignored local files such as `.env.local` or CI environment variables.
 
 ## Run
 
-Run the default suite from `.env`:
+Run the default suite from `framework.config.json`:
 
 ```bash
 pnpm test
@@ -207,6 +208,53 @@ PARALLEL_SUITE_KEYS=smoke,api_smoke TEST_SUITE=parallel pnpm test
 ```
 
 In hybrid mode, Playwright runs selected suites across workers. Each suite still controls its internal mode with `mode: 'serial'` or `mode: 'parallel'`.
+
+## Built-In Examples
+
+The framework includes two explicitly named example targets. They are safe, fast, and self-contained, so you can use them to understand suite registration and the admin dashboard without connecting to a real application.
+
+### Basic Example
+
+`example_basic` demonstrates the smallest useful suite shape:
+
+- one suite key
+- one runner function
+- two simple Playwright tests
+- serial execution
+
+Run it from the console:
+
+```bash
+TEST_SUITE=example_basic pnpm test
+```
+
+Or select `example_basic` in the Admin Dashboard Run target field.
+
+### Complicated Example
+
+`example_complicated` demonstrates the framework features used by larger projects:
+
+- a parent suite
+- nested child suite references
+- serial child suites
+- a parallel child suite with its own worker count
+- metadata for parallel safety, grouping, and data namespace
+- matrix expansion that shows child suites and leaf cases
+- live Admin Dashboard status for nested cases
+
+Run it from the console:
+
+```bash
+TEST_SUITE=example_complicated pnpm test
+```
+
+Inspect its structure without running tests:
+
+```bash
+TEST_SUITE=example_complicated pnpm matrix
+```
+
+In the Admin Dashboard, select `example_complicated` and click Matrix to see the nested suite tree before clicking Run.
 
 ## Quality Gates
 
@@ -241,7 +289,7 @@ CI runs the framework doctor, typecheck, suite validation, format check, lint, g
 
 ## GitHub Suite Matrix
 
-GitHub Actions is config-first. Push, pull request, and manual runs use the committed `.env` and `framework.config.ts` values by default:
+GitHub Actions is config-first. Push, pull request, and manual runs use committed `framework.config.json` values by default:
 
 ```text
 TEST_SUITE

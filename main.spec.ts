@@ -17,12 +17,43 @@ function registerSuite(suiteKey: string, suite: TestSuiteDefinition): void {
       logger.info(`Starting suite=${suiteKey}, kind=${suite.kind}, mode=${mode}`);
     });
 
-    for (const runner of suite.tests) {
-      if (typeof runner.test !== 'function') {
-        throw new Error(`Suite "${suiteKey}" has an invalid runner: ${runner.description}`);
+    const registerEntries = (ownerSuiteKey: string, ownerSuite: TestSuiteDefinition, seenSuiteKeys = new Set<string>()) => {
+      if (seenSuiteKeys.has(ownerSuiteKey)) {
+        logger.error(`Nested suite cycle detected at "${ownerSuiteKey}".`);
+        return;
       }
-      runner.test();
-    }
+
+      const nextSeenSuiteKeys = new Set(seenSuiteKeys);
+      nextSeenSuiteKeys.add(ownerSuiteKey);
+
+      for (const entry of ownerSuite.tests) {
+        const entryLabel = 'suite' in entry ? `${entry.suite} - ${entry.description}` : entry.description;
+        if ('suite' in entry) {
+          const childSuite = testSuites[entry.suite];
+          if (!childSuite) {
+            logger.error(`Nested suite "${entry.suite}" referenced by "${ownerSuiteKey}" is not registered.`);
+            continue;
+          }
+
+          const childMode = childSuite.mode ?? ENV.SUITE_EXECUTION_MODE;
+          const childDescribe = childMode === 'parallel' ? test.describe.parallel : test.describe.serial;
+          childDescribe(entryLabel, () => {
+            registerEntries(entry.suite, childSuite, nextSeenSuiteKeys);
+          });
+          continue;
+        }
+
+        if (typeof entry.test !== 'function') {
+          throw new Error(`Suite "${ownerSuiteKey}" has an invalid runner: ${entry.description}`);
+        }
+
+        test.describe.serial(entryLabel, () => {
+          entry.test();
+        });
+      }
+    };
+
+    registerEntries(suiteKey, suite);
   });
 }
 

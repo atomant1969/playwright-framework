@@ -8,11 +8,11 @@ on:
   workflow_dispatch:
     inputs:
       test_suite_override:
-        description: Optional suite key override. Leave blank to use .env/framework.config.ts.
+        description: Optional suite key override. Leave blank to use framework.config.json.
         required: false
         default: ''
       parallel_suite_keys_override:
-        description: Optional comma-separated suite key override. Leave blank to use .env/framework.config.ts.
+        description: Optional comma-separated suite key override. Leave blank to use framework.config.json.
         required: false
         default: ''
 

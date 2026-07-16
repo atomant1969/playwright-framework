@@ -1,9 +1,19 @@
-import { defineConfig } from '@playwright/test';
+import { defineConfig, type ReporterDescription } from '@playwright/test';
 import { frameworkConfig } from './framework.config';
 import { PARALLEL_SUITE_KEYS, testSuites } from './testSuiteConfig';
 
 const isHybridParallelRun = frameworkConfig.suite.testSuite === 'parallel';
 const selectedSuiteKeys = isHybridParallelRun ? PARALLEL_SUITE_KEYS : [frameworkConfig.suite.testSuite];
+const reporters: ReporterDescription[] = [
+  ['line'],
+  ['json', { outputFile: process.env.PLAYWRIGHT_JSON_OUTPUT || 'test-results/playwright-results.json' }],
+  ['html', { open: 'never' }],
+  ['allure-playwright'],
+];
+
+if (process.env.ADMIN_RUN_EVENTS_FILE) {
+  reporters.push(['./scripts/admin-playwright-reporter.ts']);
+}
 
 function resolveSuiteWorkers(suiteKey: string): number {
   const suite = testSuites[suiteKey];
@@ -30,12 +40,7 @@ export default defineConfig({
   workers: resolveWorkerCount(),
   fullyParallel: isHybridParallelRun,
   retries: frameworkConfig.playwright.retries,
-  reporter: [
-    ['line'],
-    ['json', { outputFile: process.env.PLAYWRIGHT_JSON_OUTPUT || 'test-results/playwright-results.json' }],
-    ['html', { open: 'never' }],
-    ['allure-playwright'],
-  ],
+  reporter: reporters,
   use: {
     baseURL: frameworkConfig.app.baseURL,
     headless: frameworkConfig.playwright.headless,

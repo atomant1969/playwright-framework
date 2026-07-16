@@ -44,5 +44,20 @@ export default tseslint.config(
       'no-console': 'off',
     },
   },
+  {
+    files: ['admin-console/**/*.js'],
+    languageOptions: {
+      globals: {
+        document: 'readonly',
+        window: 'readonly',
+        URL: 'readonly',
+        Event: 'readonly',
+        FormData: 'readonly',
+        fetch: 'readonly',
+        setInterval: 'readonly',
+        clearInterval: 'readonly',
+      },
+    },
+  },
   prettier,
 );
